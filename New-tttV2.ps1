@@ -81,7 +81,7 @@ function New-tttV2 {
             {
                 for ($x = 0; $x -le 2; $x++)
                 {
-                    if ($board[$i][$x] -match '^[OX]*$')
+                    if ($board[$i][$x] -match '^[123456789]*$')
                     {
                         return 0
                     }
@@ -111,6 +111,66 @@ function New-tttV2 {
                 return ($loc -7), 2
             }
         }
+
+        if ($bot) {
+            function Bot () {
+                for ($i = 0; $i -le 2; $i++){
+                    if ($board[0][$i] -eq $board[1][$i] -and $board[2][$i] -ne 'O' -and $board[2][$i] -ne 'X' -and $board[1][$i]-eq 'X'){
+                        return $i, 2
+                    }
+                    if ($board[0][$i] -eq $board[2][$i] -and $board[1][$i] -ne 'O' -and $board[1][$i] -ne 'X' -and $board[2][$i]-eq 'X'){
+                        return $i, 1
+                    }
+                    if ($board[1][$i] -eq $board[2][$i] -and $board[0][$i] -ne 'O' -and $board[0][$i] -ne 'X' -and $board[2][$i]-eq 'X'){
+                        return $i, 0
+                    }
+                }
+                for ($i = 0; $i -le 2; $i++){
+                    if ($board[$i][0] -eq $board[$i][1] -and $board[$i][2] -ne 'O' -and $board[$i][2] -ne 'X' -and $board[$i][1]-eq 'X'){
+                        return 2, $i
+                    }
+                    if ($board[$i][0] -eq $board[$i][2] -and $board[$i][1] -ne 'O' -and $board[$i][1] -ne 'X' -and $board[$i][2]-eq 'X'){
+                        return 1, $i
+                    }
+                    if ($board[$i][1] -eq $board[$i][2] -and $board[$i][0] -ne 'O' -and $board[$i][0] -ne 'X' -and $board[$i][2]-eq 'X'){
+                        return 0, $i
+                    }
+                }
+
+                if ($board[0][0] -eq $board[1][1] -and $board[2][2] -ne 'O' -and $board[2][2] -ne 'X' -and $board[1][1]-eq 'X'){
+                    return 2, 2
+                }
+                if ($board[0][0] -eq $board[2][2] -and $board[1][1] -ne 'O' -and $board[1][1] -ne 'X' -and $board[2][2]-eq 'X'){
+                    return 1, 1
+                }
+                if ($board[1][1] -eq $board[2][2] -and $board[0][0] -ne 'O' -and $board[0][0] -ne 'X' -and $board[2][2]-eq 'X'){
+                    return 0, 0
+                }
+
+                if ($board[0][2] -eq $board[1][1] -and $board[2][0] -ne 'O' -and $board[2][0] -ne 'X' -and $board[1][1]-eq 'X'){
+                    return 2, 0
+                }
+                if ($board[0][2] -eq $board[2][0] -and $board[1][1] -ne 'O' -and $board[1][1] -ne 'X' -and $board[2][0]-eq 'X'){
+                    return 1, 1
+                }
+                if ($board[1][1] -eq $board[2][0] -and $board[0][2] -ne 'O' -and $board[0][2] -ne 'X' -and $board[2][0]-eq 'X'){
+                    return 0, 2
+                }
+
+                if ($board[1][1] -eq '5'){
+                    return 1,1
+                }
+                else {
+                    for ($i = 0; $i -le 2; $i++){
+                        for ($x = 0; $x -le 2; $x++){
+                            if ($board[$i][$x] -ne 'X' -and $board[$i][$x] -ne 'O'){
+                                return $x,$i
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
     process {
@@ -130,6 +190,17 @@ function New-tttV2 {
             }
             $player = Swap
             $win = WinTest
+            if ($win -ne 0){
+                break
+            }
+            if ($bot)
+            {
+                $xa, $ya = bot
+                write-Host "[$xa`:$ya]"
+                MakeMove $xa $ya $player
+                $player = Swap
+                $win = WinTest
+            }
         }  
     }
     
