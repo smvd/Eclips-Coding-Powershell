@@ -17,10 +17,21 @@ function Export-Anonfiles {
     }
     
     process {
-        $output
+        $pageUrl = ($output | ConvertFrom-Json).data.file.url.short
+
+        $html = Invoke-RestMethod $pageUrl
+
+        foreach ($line in ($html -split ' ')){
+            if ($line.Contains('href="https://cdn')){
+                $directUrl = $line
+            }
+        }
     }
     
     end {
+        $buff = $directUrl -replace 'href="'
+        $out = $buff -replace '">'
         
+        return $out
     }
 }
