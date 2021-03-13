@@ -48,8 +48,6 @@ function New-tttV2 {
                     [string]$buff = $board[$b][$a] + $board[$c][$a] + $board[$d][$a]
                 }
 
-                write-Host "$buff"
-
                 [string]$buff2 = $e + $e + $e
                 if ($buff.Contains($buff2)){
                     return $true
@@ -98,8 +96,8 @@ function New-tttV2 {
         }
 
         function Swap () {
-            if ($player -eq 'O') {$player = 'X'}
-            elseif ($player -eq 'X') {$player = 'O'}
+            if ($player -eq 'O') {return 'X'}
+            elseif ($player -eq 'X') {return 'O'}
         }
 
         function Translate ($loc) {
@@ -130,12 +128,28 @@ function New-tttV2 {
                     }
                 }
             }
-            Swap
+            $player = Swap
             $win = WinTest
         }  
     }
     
     end {
+
+        Display
+
+        if ($win -eq 3){
+            Write-Host 'Its a: ' -NoNewline
+            return 'Tie'
+        }
+        else {
+            Write-Host 'Its a win for: ' -NoNewline
+            if ($win -eq 1) {
+                return 'X'
+            }
+            else {
+                return 'O'
+            }
+        }
         
     }
 }
