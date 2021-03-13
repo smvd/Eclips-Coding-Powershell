@@ -1,117 +1,117 @@
-function New-tttV2 {
-    [CmdletBinding()]
+function New-tttV2 {                                                                        # Function decleration
+    [CmdletBinding()]                                                                       # Not used here but i keep it cuz i'm lazy
     param (
         [Parameter()]
-        [Switch]$bot,
+        [Switch]$bot,                                                                       # If you use this switch you will play against a bot
         [Parameter()]
-        [string]$player = 'X'
+        [string]$player = 'X'                                                               # Lets you set the player whom starts(You)
     )
     
-    begin {
-        [array]$board = @(
+    begin {                                                                                 # Starting section
+        [array]$board = @(                                                                  # A 2D for the game board
                             ('1','2','3'),
                             ('4','5','6'),
                             ('7','8','9')
                          )
-        function Display () {
-            for ($i = 0; $i -le 2; $i++){
-                Write-Output '+---+---+---+'
-                for ($x = 0; $x -le 2; $x++){
-                    Write-Host '| ' -NoNewline
-                    if ($board[$i][$x] -eq 'X'){
-                        Write-Host "$($board[$i][$x]) " -NoNewline -ForegroundColor 'Green'
+        function Display () {                                                               # The function to display the board
+            for ($i = 0; $i -le 2; $i++){                                                   # Loop 0,1,2
+                Write-Output '+---+---+---+'                                                # Formatting
+                for ($x = 0; $x -le 2; $x++){                                               # Loop 0,1,2 x3 cuz its inside the other loop
+                    Write-Host '| ' -NoNewline                                              # Formatting
+                    if ($board[$i][$x] -eq 'X'){                                            # If its an X
+                        Write-Host "$($board[$i][$x]) " -NoNewline -ForegroundColor 'Green' # Display it in green
                     }
-                    elseif ($board[$i][$x] -eq 'O'){
-                        Write-Host "$($board[$i][$x]) " -NoNewline -ForegroundColor 'Blue'
+                    elseif ($board[$i][$x] -eq 'O'){                                        # If its an O
+                        Write-Host "$($board[$i][$x]) " -NoNewline -ForegroundColor 'Blue'  # Display it in blue
                     }
-                    else{
-                        Write-Host "$($board[$i][$x]) " -NoNewline
+                    else{                                                                   # If its an untaken slot
+                        Write-Host "$($board[$i][$x]) " -NoNewline                          # Just display in standard color
                     }
                 }
-                Write-Output '|'
+                Write-Output '|'                                                            # Formatting
             }
-            Write-Output '+---+---+---+'
+            Write-Output '+---+---+---+'                                                    # Formatting
         }
 
-        function WinTest () {
-            <#
-            0=none
-            1=X
-            2=O
-            3=Tie
-            #>
-            function BuffM($a, $b, $c, $d, $e ,$f) {
-                if ($f -eq 0) {
-                [string]$buff = $board[$a][$b] + $board[$a][$c] + $board[$a][$d]
+        function WinTest () {                                                               # The function to test whom is the winner
+            function BuffM($a, $b, $c, $d, $e ,$f) {                                        # Function to match the board slots against a character
+                if ($f -eq 0) {                                                             # If we use mode 1
+                    [string]$buff = $board[$a][$b] + $board[$a][$c] + $board[$a][$d]        # Match x=a y=b,c,d
                 }
-                else {
-                    [string]$buff = $board[$b][$a] + $board[$c][$a] + $board[$d][$a]
+                else {                                                                      # If we use mode 2
+                    [string]$buff = $board[$b][$a] + $board[$c][$a] + $board[$d][$a]        # Match x=b,c,d y=a
                 }
 
-                [string]$buff2 = $e + $e + $e
-                if ($buff.Contains($buff2)){
-                    return $true
+                [string]$buff2 = $e + $e + $e                                               # Make a compare buffer of the character
+                if ($buff -eq $buff2){                                                      # Test if they match
+                    return $true                                                            # Return true                      
                 }
-                else {
-                    return $false
+                else {                                                                      # If they dont match
+                    return $false                                                           # Return false
                 }
             }
 
+            #                                                                               # Test if any vertical and horizontal lines exist if so return their matching values
             for ($i = 0; $i -le 2; $i++)
             {
-                if (BuffM $i 0 1 2 'X' 0){return 1}
+                if (BuffM $i 0 1 2 'X' 0){return 1}                                         
                 if (BuffM $i 0 1 2 'O' 0){return 2}
                 if (BuffM $i 0 1 2 'X' 1){return 1}
                 if (BuffM $i 0 1 2 'O' 1){return 2}
             }
 
+            #                                                                               # Hard coded diagonal
             if ($board[0][0] -eq $board[1][1] -and $board[0][0] -eq $board[2][2])
             {
                 if ($board[0][0] -eq 'X') {return 1}
                 else {return 2}
             }
             
+            #                                                                               # The other hardcoded diagonal
             if ($board[0][2] -eq $board[1][1] -and $board[0][2] -eq $board[2][0])
             {
                 if ($board[0][2] -eq 'X') {return 1}
                 else {return 2}
             }
 
+            #                                                                               # Loop threw each character and test if it is 123456789
             for ($i = 0; $i -le 2; $i++)
             {
                 for ($x = 0; $x -le 2; $x++)
                 {
                     if ($board[$i][$x] -match '^[123456789]*$')
                     {
-                        return 0
+                        return 0                                                            # Return 0 = no win or tie
                     }
                 }
             }
 
-            return 3
+            return 3                                                                        # Return that there is a tie
         }
 
-        function MakeMove ($x, $y, $player) {
+        function MakeMove ($x, $y, $player) {                                               # Set the given xy to the current player
             $board[$y][$x] = $player
         }
 
-        function Swap () {
-            if ($player -eq 'O') {return 'X'}
-            elseif ($player -eq 'X') {return 'O'}
+        function Swap () {                                                                  # Function to swap the player
+            if ($player -eq 'O') {return 'X'}                                               # If its o return x
+            elseif ($player -eq 'X') {return 'O'}                                           # If its x return O
         }
 
-        function Translate ($loc) {
-            if ($loc -le 3){
-                return ($loc -1), 0
+        function Translate ($loc) {                                                         # Function to convert index (12345679) to x,y
+            if ($loc -le 3){                                                                # If its 123
+                return ($loc -1), 0                                                         # Return the correct x,y
             }
-            elseif ($loc -le 6){
-                return ($loc -4), 1
+            elseif ($loc -le 6){                                                            # If its 456
+                return ($loc -4), 1                                                         # Return x,y
             }
-            else{
-                return ($loc -7), 2
+            else{                                                                           # If its 789
+                return ($loc -7), 2                                                         # Return x,y
             }
         }
 
+        # The bot function is such a mess i will not even take credit for it.
+        # It just raw tests if it can win and if not it just picks one with its eyes closed
         if ($bot) {
             function Bot () {
                 for ($i = 0; $i -le 2; $i++){
@@ -173,52 +173,54 @@ function New-tttV2 {
         }
     }
     
-    process {
-        $win = 0
-        while ($win -eq 0) {
-            Display
-            while ($true) {
-                $move = Read-Host -Prompt "Move for $player"
-                $xa,$ya = Translate($move)
-                write-Host "[$xa`:$ya]"
-                if (@(0,1,2) -contains $xa -and @(0,1,2) -contains $ya) {
-                    if ($board[$ya][$xa] -eq $move) {
-                        MakeMove $xa $ya $player
-                        break;
+    process {                                                                               # The game section
+        $win = 0                                                                            # Variable with game state
+        while ($win -eq 0) {                                                                # Loop while no win or tie
+            Display                                                                         # Draw the game
+            while ($true) {                                                                 # Inf loop
+                $move = Read-Host -Prompt "Move for $player"                                # Get the users move
+                $xa,$ya = Translate($move)                                                  # Convert the index to x,y
+                write-Host "[$xa`:$ya]" -ForegroundColor 'Red'                              # Display the formatted x,y
+                if (@(0,1,2) -contains $xa -and @(0,1,2) -contains $ya) {                   # If it was a valid move
+                    if ($board[$ya][$xa] -eq $move) {                                       # If the x,y are free
+                        MakeMove $xa $ya $player                                            # Make the move
+                        break;                                                              # Leave the loop    
                     }
-                }
+                }                                                                           # If its invalid ask again
             }
-            $player = Swap
-            $win = WinTest
-            if ($win -ne 0){
-                break
+
+            $player = Swap                                                                  # Swap the player
+            $win = WinTest                                                                  # Test if there has been a win
+            if ($win -ne 0){                                                                # It only updates the test at the end so i need to manualy test
+                break                                                                       # Leave the loop
             }
-            if ($bot)
+
+            if ($bot)                                                                       # If we are playing against a bot
             {
-                $xa, $ya = bot
-                write-Host "[$xa`:$ya]"
-                MakeMove $xa $ya $player
-                $player = Swap
-                $win = WinTest
+                $xa, $ya = bot                                                              # Get the next move the bot wants
+                write-Host "[$xa`:$ya]"                                                     # Display it
+                MakeMove $xa $ya $player                                                    # Make the move
+                $player = Swap                                                              # Swap the player
+                $win = WinTest                                                              # Test for a win
             }
         }  
     }
     
-    end {
+    end {                                                                                   # Ending section
 
-        Display
+        Display                                                                             # Display the game board in its finished state
 
-        if ($win -eq 3){
-            Write-Host 'Its a: ' -NoNewline
+        if ($win -eq 3){                                                                    # If it was a tie
+            Write-Host 'Its a: ' -NoNewline                                                 # Let them know its a tie
             return 'Tie'
         }
-        else {
-            Write-Host 'Its a win for: ' -NoNewline
-            if ($win -eq 1) {
-                return 'X'
+        else {                                                                              # If there was a winner
+            Write-Host 'Its a win for: ' -NoNewline                                         # Let them know there was a winner
+            if ($win -eq 1) {                                                               # If its X
+                return 'X'                                                                  # Show x
             }
-            else {
-                return 'O'
+            else {                                                                          # If its O
+                return 'O'                                                                  # Show O
             }
         }
         
